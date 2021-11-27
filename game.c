@@ -11,7 +11,7 @@ void spawnBlock();
 void drawBoard();
 void moveUp();
 void moveLeft();
-void moveDown();
+int moveDown();
 void moveRight();
 
 unsigned score;
@@ -44,8 +44,7 @@ int main(void){
             break;
         case 's':
         case 66:
-            moveDown();
-            spawnBlock();
+            if(moveDown()) spawnBlock();
             drawBoard();
             break;
         case 'd':
@@ -126,10 +125,11 @@ void moveUp(){}
 
 void moveLeft(){}
 
+/*
 void moveDown(){
-    int num1 = 0, num2 = 0;
-    int index = 3;
     for(int j = 0; j < 4; j++){
+        int num1 = 0, num2 = 0;
+        int index = 3;
         for(int i = 3; i >= 0; i--){
             if (board[i][j] == 0) continue;
             if (num1 == 0) {
@@ -155,30 +155,44 @@ void moveDown(){
             board[index][j] = num1;
             index--;
         }
-        num1 = num2 = 0;
         for(int i = 0; i <= index; i++) board[i][j] = 0;
-        index = 3;
     }
+}
+*/
+
+int moveDown(){
+    int boardChanged = 1;
+    for(int j = 0; j < 4; j++){
+        int num = board[3][j];
+        int index = 3;
+        for (int i = 2; i >= 0; i--)
+        {
+            if (board[i][j] == 0) continue;
+            if (num == 0) {
+                num = board[i][j];
+                board[i][j] = 0;
+                continue;
+            }
+            if (num == board[i][j]) {
+                board[index][j] = num << 1;
+                score += num << 1;
+                num = 0;
+                board[i][j] = 0;
+                index--;
+            }
+            else {
+                board[index][j] = num;
+                num = board[i][j];
+                board[i][j] = 0;
+                index--;
+            }
+        }
+        if (num != 0) board[index][j] = num;
+    }
+    return boardChanged;
 }
 
 void moveRight(){}
 
 /* IDEAS */
 // best score or score board => file I/O
-/*
-    variable a, b to temporarily save number
-    variable c for slot number
-
-    if it is 1, don't do anything
-
-    save first number to a, and second number to b
-    if a = b,
-        save bit-shifted value to slot c
-        c++
-        score += bit-shifted value
-    if a != b,
-        save a value to slot c
-        c++
-        move b to a
-        save next number to b
-*/
