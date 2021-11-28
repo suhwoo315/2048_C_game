@@ -13,6 +13,8 @@ void moveUp();
 void moveLeft();
 int moveDown();
 void moveRight();
+int slideBlock();
+int mergeBlock();
 
 unsigned score;
 unsigned board[4][4];
@@ -125,159 +127,50 @@ void moveUp(){}
 
 void moveLeft(){}
 
-/*
-void moveDown(){
-    for(int j = 0; j < 4; j++){
-        int num1 = 0, num2 = 0;
-        int index = 3;
-        for(int i = 3; i >= 0; i--){
-            if (board[i][j] == 0) continue;
-            if (num1 == 0) {
-                num1 = board[i][j];
-            }
-            else if (num2 == 0) {
-                num2 = board[i][j];
-                if (num1 == num2){
-                    board[index][j] = num1 << 1;
-                    index--;
-                    score += num1 << 1;
-                    num1 = num2 = 0;
-                }
-                else {
-                    board[index][j] = num1;
-                    index--;
-                    num1 = num2;
-                    num2 = 0;
-                }
-            }
-        }
-        if (num1 != 0) {
-            board[index][j] = num1;
-            index--;
-        }
-        for(int i = 0; i <= index; i++) board[i][j] = 0;
-    }
-}
-*/
-
-/*
-void moveDown(){
-    for(int j = 0; j < 4; j++){
-        int num = 0;
-        int index = 3;
-        for(int i = 3; i >= 0; i--){
-            if (board[i][j] == 0) continue;
-            if (num == 0) {
-                num = board[i][j];
-                board[i][j] = 0;
-                continue;
-            }
-            if (num == board[i][j]) {
-                board[index][j] = num << 1;
-                score += num << 1;
-                num = 0;
-                board[i][j] = 0;
-                index--;
-            }
-            else {
-                board[index][j] = num;
-                num = board[i][j];
-                board[i][j] = 0;
-                index--;
-            }
-        }
-        if (num != 0) board[index][j] = num;
-    }
-}
-*/
-
-/*
 int moveDown(){
+    int boardChanged = slideBlock();
+    if (boardChanged == 0) boardChanged = mergeBlock();
+    else mergeBlock();
+    if (boardChanged == 0) boardChanged = slideBlock();
+    else slideBlock();
+    return boardChanged;
+}
+
+void moveRight(){}
+
+int slideBlock(){
     int boardChanged = 0;
     for(int j = 0; j < 4; j++){
         int index = 3;
-        int num = 0;
         for(int i = 3; i >= 0; i--){
             if (board[i][j] != 0) {
                 if (index != i) {
-                    num = board[i][j];
+                    board[index][j] = board[i][j];
                     board[i][j] = 0;
-                    board[index][j] = num;
                     boardChanged = 1;
                 }
                 index--;
             }
         }
-        index = 3;
-        num = 0;
-        for(int i = 3; i >= 0; i--){
-            if (board[i][j] == 0) continue;
-            if (num == 0) {
-                num = board[i][j];
-                board[i][j] = 0;
-                continue;
-            }
-            if (num == board[i][j]) {
-                boardChanged = 1;
-                board[index][j] = num << 1;
-                score += num << 1;
-                num = 0;
-                board[i][j] = 0;
-                index--;
-            }
-            else {
-                board[index][j] = num;
-                num = board[i][j];
-                board[i][j] = 0;
-                index--;
-            }
-        }
-        if (num != 0) board[index][j] = num;
     }
     return boardChanged;
 }
-*/
 
-int moveDown(){
+int mergeBlock(){
     int boardChanged = 0;
     for(int j = 0; j < 4; j++){
-        int num = 0;
-        int indexFrom;
-        int indexTo = 3;
-        for(int i = 3; i >= 0; i--){
+        for(int i = 3; i > 0; i--){
             if (board[i][j] == 0) continue;
-            if (num == 0) {
-                num = board[i][j];
-                board[i][j] = 0;
-                indexFrom = i;
-                continue;
-            }
-            if (num == board[i][j]) {
+            if (board[i][j] == board[i-1][j]) {
+                score += board[i][j] << 1;
+                board[i][j] = board[i][j] << 1;
+                board[i-1][j] = 0;
                 boardChanged = 1;
-                board[indexTo][j] = num << 1;
-                score += num << 1;
-                num = 0;
-                board[i][j] = 0;
-                indexTo--;
             }
-            else {
-                if (indexFrom != indexTo) boardChanged = 1;
-                board[indexTo][j] = num;
-                num = board[i][j];
-                board[i][j] = 0;
-                indexFrom = i;
-                indexTo--;
-            }
-        }
-        if (num != 0) {
-            if (indexFrom != indexTo) boardChanged = 1;
-            board[indexTo][j] = num;
         }
     }
     return boardChanged;
 }
-
-void moveRight(){}
 
 /* IDEAS */
 // best score or score board => file I/O
