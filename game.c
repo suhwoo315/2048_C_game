@@ -8,6 +8,7 @@ void setBufferedInput(int);
 void titleScreen();
 void resetGame();
 void spawnBlock();
+void checkBlock();
 void drawBoard();
 int slideBlock(unsigned*[]);
 int mergeBlock(unsigned*[]);
@@ -18,6 +19,8 @@ int moveRight();
 
 unsigned score;
 unsigned board[4][4];
+int gameOn;
+int numBlocks;
 
 int main(void){
     setBufferedInput(0);
@@ -28,7 +31,7 @@ int main(void){
     spawnBlock();
     drawBoard();
 
-    while(1){
+    while(gameOn){
         char c = getchar();
         switch (c)
         {
@@ -36,24 +39,28 @@ int main(void){
         case 65:
             if(moveUp()) spawnBlock();
             drawBoard();
+            checkBlock();
             break;
         case 'a':
         case 68:
             if(moveLeft()) spawnBlock();
             drawBoard();
+            checkBlock();
             break;
         case 's':
         case 66:
             if(moveDown()) spawnBlock();
             drawBoard();
+            checkBlock();
             break;
         case 'd':
         case 67:
             if(moveRight()) spawnBlock();
             drawBoard();
+            checkBlock();
             break;
-        case 'q':
-            printf("quit\n"); // implement this
+        case 'Q':
+            gameOn = 0;
             break;
         default:
             break;
@@ -91,6 +98,8 @@ void setBufferedInput(int enable) {
 
 void resetGame(){
     score = 0;
+    gameOn = 1;
+    numBlocks = 0;
     for(int i = 0; i < 4; i++){
         for(int j = 0; j < 4; j++){
             board[i][j] = 0;
@@ -107,6 +116,22 @@ void spawnBlock(){
         j = rand() % 4;
     } while (board[i][j] != 0);
     board[i][j] = 2;
+    numBlocks++;
+}
+
+void checkBlock(){
+    if (numBlocks < 16) return;
+    for(int i = 0; i < 4; i++){
+        for(int j = 0; j < 3; j++){
+            if (board[i][j] == board[i][j+1]) return;
+        }
+    }
+    for(int j = 0; j < 4; j++){
+        for(int i = 0; i < 3; i++){
+            if (board[i][j] == board[i+1][j]) return;
+        }
+    }
+    gameOn = 0;
 }
 
 void drawBoard(){
@@ -145,6 +170,7 @@ int mergeBlock(unsigned *line[]){
             *line[k] = *line[k] << 1;
             *line[k+1] = 0;
             boardChanged = 1;
+            numBlocks--;
         }
     }
     return boardChanged;
