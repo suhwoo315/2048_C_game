@@ -8,6 +8,8 @@
 #define TOP "\033[H" // move to top of screen
 
 #define DEFAULT "\x1B[0m" // default color
+#define BLINK "\x1B[5m" // blinking text
+#define REVERSE "\x1B[7m" // reverse of default color
 #define BLACK "\x1B[30m" // black text
 #define COLOR1 "\x1B[100m" // grey background
 #define COLOR2 "\x1B[101m" // red background
@@ -91,10 +93,25 @@ int main(void){
 }
 
 void titleScreen(){
+    printf("%s%s", CLEAR, TOP);
+    printf("\n%*s%s    %s %s    %s %s %s  %s %s %s    %s\n", 8, "", COLOR2, DEFAULT, COLOR4, DEFAULT, COLOR3, DEFAULT, COLOR3, DEFAULT, COLOR7, DEFAULT);
+    printf("%*s   %s %s %s %s  %s %s %s %s  %s %s %s %s  %s %s\n", 8, "", COLOR2, DEFAULT, COLOR4, DEFAULT, COLOR4, DEFAULT, COLOR3, DEFAULT, COLOR3, DEFAULT, COLOR7, DEFAULT, COLOR7, DEFAULT);
+    printf("%*s%s    %s %s %s  %s %s %s    %s %s    %s\n", 8, "", COLOR2, DEFAULT, COLOR4, DEFAULT, COLOR4, DEFAULT, COLOR3, DEFAULT, COLOR7, DEFAULT);
+    printf("%*s%s %s    %s %s  %s %s    %s %s %s %s  %s %s\n", 8, "", COLOR2, DEFAULT, COLOR4, DEFAULT, COLOR4, DEFAULT, COLOR3, DEFAULT, COLOR7, DEFAULT, COLOR7, DEFAULT);
+    printf("%*s%s    %s %s    %s    %s %s %s    %s\n\n", 8, "", COLOR2, DEFAULT, COLOR4, DEFAULT, COLOR3, DEFAULT, COLOR7, DEFAULT);
+    printf("%s", REVERSE);
+    printf("      Use arrow keys or wasd       ");
+    printf("%s\n", DEFAULT);
+    printf("%s", REVERSE);
+    printf("Merge blocks and make 2048 to win!!");
+    printf("%s\n", DEFAULT);
+    printf("%s", REVERSE);
+    printf("     Turn off caps lock first      ");
+    printf("%s\n", DEFAULT);
+    printf("%s%s", BLINK, COLOR6);
+    printf("   Press lowercase 's' to start    ");
+    printf("%s\n", DEFAULT);
     char c = 'S';
-    printf("Use arrow keys or wasd\n");
-    printf("Please turn off caps lock first\n");
-    printf("Press lowercase 's' to start\n");
     while(c != 's'){
         c = getchar();
     }
@@ -189,7 +206,9 @@ void changeColor(int num){
 
 void drawBoard(){
     printf("%s%s", CLEAR, TOP);
-    printf("\nscore : %d\n", score);
+    printf("%s********%s%s %d %s %d %s %d %s %d %s%s********%s\n\n", REVERSE, DEFAULT, COLOR2, 2, COLOR4, 0, COLOR3, 4, COLOR7, 8, DEFAULT, REVERSE, DEFAULT);
+    printf("best : \n");
+    printf("score : %d\n", score);
     for(int i = 0; i < 4; i++){
         for(int j = 0; j < 4; j++){
             changeColor(board[i][j]);
@@ -220,6 +239,10 @@ void drawBoard(){
         }
         printf("%s\n", DEFAULT);
     }
+    printf("\n");
+    printf("%s", REVERSE);
+    printf(" Press uppercase 'Q' to quit\n");
+    printf("%s\n", DEFAULT);
 }
 
 int slideBlock(unsigned *line[]){
