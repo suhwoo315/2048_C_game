@@ -37,12 +37,15 @@ int moveUp();
 int moveDown();
 int moveLeft();
 int moveRight();
+void saveScore();
 
+unsigned bestScore;
 unsigned score;
 short board[4][4];
+int numBlocks;
 int gameOn;
 int winState;
-int numBlocks;
+int scoreState;
 
 int main(void){
     setBufferedInput(0);
@@ -90,6 +93,7 @@ int main(void){
         }
     }
 
+    saveScore();
     drawBoard();
     setBufferedInput(1);
     printf("%s", DEFAULT);
@@ -138,9 +142,18 @@ void setBufferedInput(int enable) {
 }
 
 void resetGame(){
+    FILE *file;
+    if ((file = fopen("best.txt", "r"))) {
+        fscanf(file, "%d", &bestScore);
+        fclose(file);
+    }
+    else {
+        bestScore = 0;
+    }
     score = 0;
     gameOn = 1;
     winState = 0;
+    scoreState = 0;
     numBlocks = 0;
     for(int i = 0; i < 4; i++){
         for(int j = 0; j < 4; j++){
@@ -212,7 +225,7 @@ void changeColor(int num){
 void drawBoard(){
     printf("%s%s", CLEAR, TOP);
     printf("%s********%s%s %d %s %d %s %d %s %d %s%s********%s\n\n", REVERSE, DEFAULT, COLOR2, 2, COLOR4, 0, COLOR3, 4, COLOR7, 8, DEFAULT, REVERSE, DEFAULT);
-    printf("best : \n");
+    printf("best : %d\n", bestScore);
     printf("score : %d\n", score);
     for(int i = 0; i < 4; i++){
         for(int j = 0; j < 4; j++){
@@ -250,6 +263,7 @@ void drawBoard(){
     else {
         if (winState) printf("%s%s%s          YOU WON!!         %s\n", DEFAULT, BLINK, COLOR6, DEFAULT);
         else printf("         GAME OVER          \n");
+        if (scoreState) printf("%s%s%s      NEW BEST SCORE!!      %s\n", DEFAULT, BLINK, COLOR7, DEFAULT);
     }
     printf("%s\n", DEFAULT);
 }
@@ -340,4 +354,15 @@ int moveRight(){
         boardChanged += slideBlock(line);
     }
     return boardChanged;
+}
+
+void saveScore(){
+    if (score <= bestScore) return;
+    FILE *file;
+    if ((file = fopen("best.txt", "w"))) {
+        fprintf(file, "%d", score);
+        fclose(file);
+    }
+    bestScore = score;
+    scoreState = 1;
 }
