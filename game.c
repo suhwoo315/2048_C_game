@@ -9,12 +9,12 @@ void titleScreen();
 void resetGame();
 void spawnBlock();
 void drawBoard();
-void moveUp();
-void moveLeft();
+int moveUp();
+int moveLeft();
 int moveDown();
-void moveRight();
-int slideBlock();
-int mergeBlock();
+int moveRight();
+int slideBlock(unsigned*[]);
+int mergeBlock(unsigned*[]);
 
 unsigned score;
 unsigned board[4][4];
@@ -34,14 +34,12 @@ int main(void){
         {
         case 'w':
         case 65:
-            moveUp();
-            spawnBlock();
+            if(moveUp()) spawnBlock();
             drawBoard();
             break;
         case 'a':
         case 68:
-            moveLeft();
-            spawnBlock();
+            if(moveLeft()) spawnBlock();
             drawBoard();
             break;
         case 's':
@@ -51,8 +49,7 @@ int main(void){
             break;
         case 'd':
         case 67:
-            moveRight();
-            spawnBlock();
+            if(moveRight()) spawnBlock();
             drawBoard();
             break;
         case 'q':
@@ -123,51 +120,88 @@ void drawBoard(){
     }
 }
 
-void moveUp(){}
-
-void moveLeft(){}
-
-int moveDown(){
-    int boardChanged = slideBlock();
-    if (boardChanged == 0) boardChanged = mergeBlock();
-    else mergeBlock();
-    if (boardChanged == 0) boardChanged = slideBlock();
-    else slideBlock();
-    return boardChanged;
-}
-
-void moveRight(){}
-
-int slideBlock(){
+int slideBlock(unsigned *line[]){
     int boardChanged = 0;
-    for(int j = 0; j < 4; j++){
-        int index = 3;
-        for(int i = 3; i >= 0; i--){
-            if (board[i][j] != 0) {
-                if (index != i) {
-                    board[index][j] = board[i][j];
-                    board[i][j] = 0;
-                    boardChanged = 1;
-                }
-                index--;
+    int index = 0;
+    for(int k = 0; k < 4; k++){
+        if (*line[k] != 0) {
+            if (index != k) {
+                *line[index] = *line[k];
+                *line[k] = 0;
+                boardChanged = 1;
             }
+            index++;
         }
     }
     return boardChanged;
 }
 
-int mergeBlock(){
+int mergeBlock(unsigned *line[]){
     int boardChanged = 0;
-    for(int j = 0; j < 4; j++){
-        for(int i = 3; i > 0; i--){
-            if (board[i][j] == 0) continue;
-            if (board[i][j] == board[i-1][j]) {
-                score += board[i][j] << 1;
-                board[i][j] = board[i][j] << 1;
-                board[i-1][j] = 0;
-                boardChanged = 1;
-            }
+    for(int k = 0; k < 3; k++){
+        if (*line[k] == 0) continue;
+        if (*line[k] == *line[k+1]) {
+            score += *line[k] << 1;
+            *line[k] = *line[k] << 1;
+            *line[k+1] = 0;
+            boardChanged = 1;
         }
+    }
+    return boardChanged;
+}
+
+int moveDown(){
+    int boardChanged = 0;
+    unsigned *line[4];
+    for(int j = 0; j < 4; j++){
+        for(int i = 3; i >= 0; i--){
+            line[i] = &board[i][j];
+        }
+        boardChanged += slideBlock(line);
+        boardChanged += mergeBlock(line);
+        boardChanged += slideBlock(line);
+    }
+    return boardChanged;
+}
+
+int moveUp(){
+    int boardChanged = 0;
+    unsigned *line[4];
+    for(int j = 0; j < 4; j++){
+        for(int i = 0; i < 4; i++){
+            line[i] = &board[i][j];
+        }
+        boardChanged += slideBlock(line);
+        boardChanged += mergeBlock(line);
+        boardChanged += slideBlock(line);
+    }
+    return boardChanged;
+}
+
+int moveLeft(){
+    int boardChanged = 0;
+    unsigned *line[4];
+    for(int i = 0; i < 4; i++){
+        for(int j = 0; j < 4; j++){
+            line[i] = &board[i][j];
+        }
+        boardChanged += slideBlock(line);
+        boardChanged += mergeBlock(line);
+        boardChanged += slideBlock(line);
+    }
+    return boardChanged;
+}
+
+int moveRight(){
+    int boardChanged = 0;
+    unsigned *line[4];
+    for(int i = 0; i < 4; i++){
+        for(int j = 3; j >= 0; j--){
+            line[i] = &board[i][j];
+        }
+        boardChanged += slideBlock(line);
+        boardChanged += mergeBlock(line);
+        boardChanged += slideBlock(line);
     }
     return boardChanged;
 }
