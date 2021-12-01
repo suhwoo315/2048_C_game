@@ -4,11 +4,30 @@
 #include <termios.h>
 #include <unistd.h>
 
+#define CLEAR "\033[2J" // clear screen
+#define TOP "\033[H" // move to top of screen
+
+#define DEFAULT "\x1B[0m" // default color
+#define BLACK "\x1B[30m" // black text
+#define COLOR1 "\x1B[100m" // grey background
+#define COLOR2 "\x1B[101m" // red background
+#define COLOR3 "\x1B[102m" // green background
+#define COLOR4 "\x1B[103m" // yellow background
+#define COLOR5 "\x1B[104m" // blue background
+#define COLOR6 "\x1B[105m" // pink background
+#define COLOR7 "\x1B[106m" // sky background
+#define COLOR8 "\x1B[41m" // dark red background
+#define COLOR9 "\x1B[42m" // dark green background
+#define COLOR10 "\x1B[43m" // dark yellow background
+#define COLOR11 "\x1B[45m" // dark pink background
+#define COLOR12 "\x1B[46m" // dark sky background
+
 void setBufferedInput(int);
 void titleScreen();
 void resetGame();
 void spawnBlock();
 void checkBlock();
+void changeColor(int);
 void drawBoard();
 int slideBlock(unsigned*[]);
 int mergeBlock(unsigned*[]);
@@ -67,6 +86,7 @@ int main(void){
         }
     }
 
+    setBufferedInput(1);
     return 0;
 }
 
@@ -134,14 +154,71 @@ void checkBlock(){
     gameOn = 0;
 }
 
+void changeColor(int num){
+    switch (num)
+    {
+        case 0:
+            printf("%s%s", BLACK, COLOR1); break;
+        case 2:
+            printf("%s%s", BLACK, COLOR2); break;
+        case 4:
+            printf("%s%s", BLACK, COLOR3); break;
+        case 8:
+            printf("%s%s", BLACK, COLOR4); break;
+        case 16:
+            printf("%s%s", BLACK, COLOR5); break;
+        case 32:
+            printf("%s%s", BLACK, COLOR6); break;
+        case 64:
+            printf("%s%s", BLACK, COLOR7); break;
+        case 128:
+            printf("%s%s", BLACK, COLOR8); break;
+        case 256:
+            printf("%s%s", BLACK, COLOR9); break;
+        case 512:
+            printf("%s%s", BLACK, COLOR10); break;
+        case 1024:
+            printf("%s%s", BLACK, COLOR11); break;
+        case 2048:
+            printf("%s%s", BLACK, COLOR12); break;
+        default:
+            printf("%s", DEFAULT);
+            break;
+    }
+}
+
 void drawBoard(){
-    // temporary
+    printf("%s%s", CLEAR, TOP);
     printf("\nscore : %d\n", score);
     for(int i = 0; i < 4; i++){
         for(int j = 0; j < 4; j++){
-            printf("%d ", board[i][j]);
+            changeColor(board[i][j]);
+            printf("       ");
         }
-        printf("\n");
+        printf("%s\n", DEFAULT);
+        for(int j = 0; j < 4; j++){
+            changeColor(board[i][j]);
+            if (board[i][j] == 0){
+                printf("   *   ");
+                continue;
+            }
+            int num = board[i][j];
+            int length = 0;
+            do
+            {
+                num /= 10;
+                length++;
+            } while (num != 0);
+            int front = (7 - length) / 2;
+            int back = 7 - length - front;
+            printf("%*s%d%*s", front, "", board[i][j], back, "");
+        }
+        printf("%s\n", DEFAULT);
+        for(int j = 0; j < 4; j++){
+            changeColor(board[i][j]);
+            printf("       ");
+        }
+        printf("%s\n", DEFAULT);
     }
 }
 
