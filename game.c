@@ -31,16 +31,17 @@ void spawnBlock();
 void checkBlock();
 void changeColor(int);
 void drawBoard();
-int slideBlock(unsigned*[]);
-int mergeBlock(unsigned*[]);
+int slideBlock(short*[]);
+int mergeBlock(short*[]);
 int moveUp();
 int moveDown();
 int moveLeft();
 int moveRight();
 
 unsigned score;
-unsigned board[4][4];
+short board[4][4];
 int gameOn;
+int winState;
 int numBlocks;
 
 int main(void){
@@ -53,6 +54,7 @@ int main(void){
     drawBoard();
 
     while(gameOn){
+        if (winState) break;
         char c = getchar();
         switch (c)
         {
@@ -88,7 +90,9 @@ int main(void){
         }
     }
 
+    drawBoard();
     setBufferedInput(1);
+    printf("%s", DEFAULT);
     return 0;
 }
 
@@ -136,6 +140,7 @@ void setBufferedInput(int enable) {
 void resetGame(){
     score = 0;
     gameOn = 1;
+    winState = 0;
     numBlocks = 0;
     for(int i = 0; i < 4; i++){
         for(int j = 0; j < 4; j++){
@@ -241,11 +246,15 @@ void drawBoard(){
     }
     printf("\n");
     printf("%s", REVERSE);
-    printf(" Press uppercase 'Q' to quit\n");
+    if (gameOn) printf(" Press uppercase 'Q' to quit\n");
+    else {
+        if (winState) printf("%s%s%s          YOU WON!!         %s\n", DEFAULT, BLINK, COLOR6, DEFAULT);
+        else printf("         GAME OVER          \n");
+    }
     printf("%s\n", DEFAULT);
 }
 
-int slideBlock(unsigned *line[]){
+int slideBlock(short *line[]){
     int boardChanged = 0;
     int index = 0;
     for(int k = 0; k < 4; k++){
@@ -261,11 +270,12 @@ int slideBlock(unsigned *line[]){
     return boardChanged;
 }
 
-int mergeBlock(unsigned *line[]){
+int mergeBlock(short *line[]){
     int boardChanged = 0;
     for(int k = 0; k < 3; k++){
         if (*line[k] == 0) continue;
         if (*line[k] == *line[k+1]) {
+            if (*line[k] << 1 == 2048) winState = 1;
             score += *line[k] << 1;
             *line[k] = *line[k] << 1;
             *line[k+1] = 0;
@@ -278,7 +288,7 @@ int mergeBlock(unsigned *line[]){
 
 int moveUp(){
     int boardChanged = 0;
-    unsigned *line[4];
+    short *line[4];
     for(int j = 0; j < 4; j++){
         for(int i = 0; i < 4; i++){
             line[i] = &board[i][j];
@@ -292,7 +302,7 @@ int moveUp(){
 
 int moveDown(){
     int boardChanged = 0;
-    unsigned *line[4];
+    short *line[4];
     for(int j = 0; j < 4; j++){
         for(int i = 0; i < 4; i++){
             line[i] = &board[3-i][j];
@@ -306,7 +316,7 @@ int moveDown(){
 
 int moveLeft(){
     int boardChanged = 0;
-    unsigned *line[4];
+    short *line[4];
     for(int i = 0; i < 4; i++){
         for(int j = 0; j < 4; j++){
             line[j] = &board[i][j];
@@ -320,7 +330,7 @@ int moveLeft(){
 
 int moveRight(){
     int boardChanged = 0;
-    unsigned *line[4];
+    short *line[4];
     for(int i = 0; i < 4; i++){
         for(int j = 0; j < 4; j++){
             line[j] = &board[i][3-j];
@@ -331,6 +341,3 @@ int moveRight(){
     }
     return boardChanged;
 }
-
-/* IDEAS */
-// best score or score board => file I/O
